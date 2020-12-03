@@ -51,13 +51,7 @@ const Map = ({ map }: MapProps) => {
       {showMap && (
         <div className="slope">
           {map.map((row, i) => (
-            <div key={i}>
-              {row.map((element, j) => (
-                <div key={i + j} className="slope-element">
-                  {element}
-                </div>
-              ))}
-            </div>
+            <div key={i}>{row}</div>
           ))}
         </div>
       )}
