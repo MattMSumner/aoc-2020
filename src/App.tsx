@@ -6,7 +6,7 @@ import { DayThree } from "./DayThree";
 
 export const App: React.FunctionComponent<Record<string, never>> = () => {
   return (
-    <Router>
+    <Router basename="/aoc-2020">
       <div>
         <nav>
           <ul>
