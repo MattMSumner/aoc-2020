@@ -1,12 +1,12 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { DayOne } from "./DayOne";
 import { DayTwo } from "./DayTwo";
 import { DayThree } from "./DayThree";
 
 export const App: React.FunctionComponent<Record<string, never>> = () => {
   return (
-    <Router basename="/aoc-2020">
+    <Router>
       <div>
         <nav>
           <ul>
