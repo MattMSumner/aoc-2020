@@ -38,6 +38,7 @@ interface MapProps {
 const Map = ({ map }: MapProps) => {
   const [showMap, setShowMap] = useState(false);
 
+  const mapString = map.map((row) => row.join("")).join("\n");
   return (
     <>
       <button
@@ -48,13 +49,7 @@ const Map = ({ map }: MapProps) => {
         {showMap ? "Hide" : "Show"} Map
       </button>
 
-      {showMap && (
-        <div className="slope">
-          {map.map((row, i) => (
-            <div key={i}>{row}</div>
-          ))}
-        </div>
-      )}
+      {showMap && <div className="slope">{mapString}</div>}
     </>
   );
 };
