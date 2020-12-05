@@ -3,6 +3,7 @@ import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
 import { DayOne } from "./DayOne";
 import { DayTwo } from "./DayTwo";
 import { DayThree } from "./DayThree";
+import { DayFour } from "./DayFour";
 
 export const App: React.FunctionComponent<Record<string, never>> = () => {
   return (
@@ -19,6 +20,9 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
             <li>
               <Link to="/day_three">Day 3</Link>
             </li>
+            <li>
+              <Link to="/day_four">Day 4</Link>
+            </li>
           </ul>
         </nav>
 
@@ -31,6 +35,9 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
           </Route>
           <Route path="/day_three">
             <DayThree />
+          </Route>
+          <Route path="/day_four">
+            <DayFour />
           </Route>
         </Switch>
       </div>
