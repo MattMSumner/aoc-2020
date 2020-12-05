@@ -23,6 +23,23 @@ function seatId(boardingPass: string): number {
   return row(rowString) * 8 + column(columnString);
 }
 
+function find(seatIds: number[]): number {
+  let i = 0;
+  const sortedSeatIds = seatIds.sort((a, b) => a - b);
+  let result = 0;
+
+  while (i < sortedSeatIds.length) {
+    if (sortedSeatIds[i + 1] - sortedSeatIds[i] !== 1) {
+      result = sortedSeatIds[i] + 1;
+      break;
+    } else {
+      i++;
+    }
+  }
+
+  return result;
+}
+
 export const DayFive: React.FunctionComponent<Record<string, never>> = () => {
   const seatIds = boardingPasses.split("\n").map(seatId);
 
@@ -30,9 +47,11 @@ export const DayFive: React.FunctionComponent<Record<string, never>> = () => {
     <>
       <h1>Day Five; Binary Boarding</h1>
 
-      <p>seat ids: {seatIds.join(", ")}</p>
+      <p>seat ids: {seatIds.sort((a, b) => a - b).join(", ")}</p>
 
       <p>Max seat id: {Math.max(...seatIds)}</p>
+
+      <p>My seat id: {find(seatIds)}</p>
     </>
   );
 };
