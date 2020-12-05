@@ -76,7 +76,7 @@ export const DayFour: React.FunctionComponent<Record<string, never>> = () => {
   const passports = parseInput(input);
   return (
     <>
-      <h1>Day Four; </h1>
+      <h1>Day Four; Passports</h1>
 
       <p>There are {passports.filter(validate).length} valid passports</p>
 
