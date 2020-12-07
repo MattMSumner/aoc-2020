@@ -46,17 +46,32 @@ function findBags(bagName: string, bagRules: BagRule[]): BagRule[] {
   }
 }
 
-function countBags(bagName: string, bagRules: BagRule[]): number {
-  return new Set(findBags(bagName, bagRules)).size;
+function containsCount(bagName: string, bagRules: BagRule[]): number {
+  const rule = bagRules.find((rule) => rule.name === bagName);
+  if (!rule) {
+    throw new Error(`no rule found for bag with name ${bagName}`);
+  }
+  if (rule.bags.length === 0) {
+    return 0;
+  } else {
+    return rule.bags.reduce((count, bag) => {
+      return count + bag.count + bag.count * containsCount(bag.name, bagRules);
+    }, 0);
+  }
 }
 
 export const DaySeven: React.FunctionComponent<Record<string, never>> = () => {
   const rules = parseBagRules(bagRules);
+  const relevantRules = Array.from(new Set(findBags("shiny gold", rules)));
+  const bagCount = relevantRules.length;
+  const bagContainsCount = containsCount("shiny gold", rules);
   return (
     <>
       <h1>Day Seven; Handy Haversacks</h1>
 
-      <p>shiny gold bag: {countBags("shiny gold", rules)}</p>
+      <p>shiny gold bag: {bagCount}</p>
+
+      <p>shiny gold bag contains: {bagContainsCount}</p>
 
       {rules.map((rule) => (
         <p key={rule.name}>
