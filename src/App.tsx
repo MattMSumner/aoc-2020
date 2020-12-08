@@ -7,6 +7,7 @@ import { DayFour } from "./DayFour";
 import { DayFive } from "./DayFive";
 import { DaySix } from "./DaySix";
 import { DaySeven } from "./DaySeven";
+import { DayEight } from "./DayEight";
 
 export const App: React.FunctionComponent<Record<string, never>> = () => {
   return (
@@ -35,6 +36,9 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
             <li>
               <Link to="/day_seven">Day 7</Link>
             </li>
+            <li>
+              <Link to="/day_eight">Day 8</Link>
+            </li>
           </ul>
         </nav>
 
@@ -59,6 +63,9 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
           </Route>
           <Route path="/day_seven">
             <DaySeven />
+          </Route>
+          <Route path="/day_eight">
+            <DayEight />
           </Route>
         </Switch>
       </div>
