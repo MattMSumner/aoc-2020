@@ -24,13 +24,10 @@ function countAdapters(adapterRatings: number[]): Differences {
           switch (list[index + 1] - adapter) {
             case 1:
               return { ...differences, one: differences.one + 1 };
-              break;
             case 2:
               return { ...differences, two: differences.two + 1 };
-              break;
             case 3:
               return { ...differences, three: differences.three + 1 };
-              break;
             default:
               throw new Error("difference is greater than 3");
           }
