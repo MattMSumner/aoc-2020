@@ -92,4 +92,4 @@ export const adapters = `76
 73
 94
 87
-29`
+29`;

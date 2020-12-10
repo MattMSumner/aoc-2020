@@ -42,10 +42,68 @@ function countAdapters(adapterRatings: number[]): Differences {
     );
 }
 
+interface Node {
+  currentValue: number;
+  pathsLeadingHere: number;
+}
+
+function possibleNodes(node: Node, adapterRating: number): Node[] {
+  const difference = adapterRating - node.currentValue;
+  if (difference === 3) {
+    return [
+      {
+        currentValue: adapterRating,
+        pathsLeadingHere: node.pathsLeadingHere,
+      },
+    ];
+  } else if (difference < 3 && difference > 0) {
+    return [
+      { ...node, pathsLeadingHere: node.pathsLeadingHere },
+      {
+        currentValue: adapterRating,
+        pathsLeadingHere: node.pathsLeadingHere,
+      },
+    ];
+  } else {
+    return [];
+  }
+}
+
+function reduceNodes(bigNodes: Node[]): Node[] {
+  return bigNodes.reduce<Node[]>((nodes, bigNode) => {
+    const existingNode = nodes.find(
+      (node) => node.currentValue === bigNode.currentValue
+    );
+    if (existingNode) {
+      existingNode.pathsLeadingHere =
+        existingNode.pathsLeadingHere + bigNode.pathsLeadingHere;
+    } else {
+      nodes.push(bigNode);
+    }
+    return nodes;
+  }, []);
+}
+
+function countPaths(adapterRatings: number[]): number {
+  const nodes: Node[] = adapterRatings
+    .sort((a, b) => a - b)
+    .reduce(
+      (nodes, adapterRating) => {
+        const bigNodes = nodes
+          .map((node) => possibleNodes(node, adapterRating))
+          .flat();
+        return reduceNodes(bigNodes);
+      },
+      [{ currentValue: 0, pathsLeadingHere: 1 }]
+    );
+  return nodes.reduce((sum, node) => sum + node.pathsLeadingHere, 0);
+}
+
 export const DayTen: React.FunctionComponent<Record<string, never>> = () => {
   const adapterRatings = parseAdapters(adapters);
   const device = deviceJoltage(adapterRatings);
   const differences = countAdapters([0, ...adapterRatings, device]);
+  const possiblePaths = countPaths([...adapterRatings, device]);
   return (
     <>
       <h1>Day Ten; Adapter Array</h1>
@@ -61,6 +119,8 @@ export const DayTen: React.FunctionComponent<Record<string, never>> = () => {
         1-jolt multiplied by 3-jolt differences is: {differences.one} x{" "}
         {differences.three} = {differences.one * differences.three}
       </p>
+
+      <p>There are {possiblePaths} possible paths</p>
     </>
   );
 };
