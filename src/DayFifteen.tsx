@@ -2,35 +2,56 @@ import React from "react";
 
 const startingNumbers = [11, 0, 1, 10, 5, 19];
 
-function nextNumber(numbers: number[]): number {
-  const lastNumber = numbers.pop() || 0;
-  if (numbers.filter((number) => number === lastNumber).length === 0) {
-    return 0;
+interface Detail {
+  index: number;
+  previousIndex?: number;
+}
+
+type Answer = Map<number, Detail>;
+
+function nextNumber(
+  numberMap: Answer,
+  index: number,
+  lastNumber: number
+): [number, Detail] {
+  const detail = numberMap.get(lastNumber);
+  if (!detail) {
+    throw new Error("what");
+  }
+
+  if (detail.previousIndex === undefined) {
+    return [0, { index, previousIndex: numberMap.get(0)?.index }];
   } else {
-    return numbers.length - numbers.lastIndexOf(lastNumber);
+    const newNumber = detail.index - detail.previousIndex;
+    return [
+      newNumber,
+      { index, previousIndex: numberMap.get(newNumber)?.index },
+    ];
   }
 }
 
-function build2020(startingNumbers: number[]): number[] {
+function buildTo(startingNumbers: number[], limit: number): number {
+  const map = new Map<number, Detail>();
+  startingNumbers.map((number, index) => map.set(number, { index }));
   let i;
-  for (i = startingNumbers.length; i < 2020; i++) {
-    const clone: number[] = new Array<number>().concat(startingNumbers);
-    startingNumbers.push(nextNumber(clone));
+  let lastNumber = startingNumbers[startingNumbers.length - 1];
+  for (i = startingNumbers.length; i < limit; i++) {
+    const [newValue, detail] = nextNumber(map, i, lastNumber);
+    map.set(newValue, detail);
+    lastNumber = newValue;
   }
-  return startingNumbers;
+  return lastNumber;
 }
 
 export const DayFifteen: React.FunctionComponent<
   Record<string, never>
 > = () => {
-  const result = build2020(startingNumbers);
+  const result = buildTo(startingNumbers, 30000000);
   return (
     <>
       <h1>Day Fifteen; Rambunctious Recitation</h1>
 
-      <p>{result.join(", ")}</p>
-
-      <p>{result[result.length - 1]}</p>
+      <p>{result}</p>
     </>
   );
 };
