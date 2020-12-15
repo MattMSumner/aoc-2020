@@ -25,11 +25,14 @@ function parseInput(input: string): Input {
   return { mask, instructions };
 }
 
-function applyMask(value: string, mask: string): string {
-  const paddedValue = Array.from("0".repeat(36 - value.length))
+function padValue(value: string): string {
+  return Array.from("0".repeat(36 - value.length))
     .join("")
     .concat(value);
-  return paddedValue
+}
+
+function applyMask(value: string, mask: string): string {
+  return padValue(value)
     .split("")
     .map((element, index) => {
       if (mask[index] === "X") {
@@ -47,41 +50,107 @@ function addValueToMemory(
   instruction: Instruction,
   mask: string,
   memory: Memory
-): Memory {
+): void {
   const value = applyMask(instruction.value, mask);
   memory.set(instruction.memory, value);
-  return memory;
 }
 
-export const DayFourteen: React.FunctionComponent<
-  Record<string, never>
-> = () => {
+function buildPartOne(): Memory {
   const inputs = input
     .split("mask")
     .slice(1)
     .map((string) => parseInput(string));
-  const memory = inputs.reduce<Memory>((memory, input) => {
+  return inputs.reduce<Memory>((memory, input) => {
     const { mask, instructions } = input;
     instructions.forEach((instruction) =>
       addValueToMemory(instruction, mask, memory)
     );
     return memory;
   }, new Map());
-  const result = Array.from(memory.values()).reduce(
+}
+
+function floatingBits(acc: string[], bit: string): string[] {
+  if (bit === "X") {
+    return acc
+      .map((head) => head.concat("1"))
+      .concat(acc.map((head) => head.concat("0")));
+  } else {
+    return acc.map((head) => head.concat(bit));
+  }
+}
+
+function findAddress(mask: string, address: string): number[] {
+  const maskedAddress = address.split("").map((element, index) => {
+    if (mask[index] === "0") {
+      return element;
+    } else {
+      return mask[index];
+    }
+  });
+
+  return maskedAddress
+    .reduce<string[]>(floatingBits, [""])
+    .map((bitAddress) => parseInt(bitAddress, 2));
+}
+
+function addValuesToMemory(
+  instruction: Instruction,
+  mask: string,
+  memory: Memory
+): void {
+  const paddedValue = padValue(instruction.value);
+  const paddedAddress = padValue(instruction.memory.toString(2));
+  const addresses = findAddress(mask, paddedAddress);
+  addresses.map((address) => memory.set(address, paddedValue));
+}
+
+function buildPartTwo(): Memory {
+  const inputs = input
+    .split("mask")
+    .slice(1)
+    .map((string) => parseInput(string));
+  return inputs.reduce<Memory>((memory, input) => {
+    const { mask, instructions } = input;
+    instructions.forEach((instruction) =>
+      addValuesToMemory(instruction, mask, memory)
+    );
+    return memory;
+  }, new Map());
+}
+
+function sumMemory(memory: Memory): number {
+  return Array.from(memory.values()).reduce(
     (sum, value) => sum + parseInt(value, 2),
     0
   );
+}
+
+export const DayFourteen: React.FunctionComponent<
+  Record<string, never>
+> = () => {
+  const partOne = buildPartOne();
+  const result = sumMemory(partOne);
+  const partTwo = buildPartTwo();
+  const resultTwo = sumMemory(partTwo);
   return (
     <>
       <h1>Day Fourteen; Docking Data</h1>
 
       <p>
-        {Array.from(memory.entries())
+        {Array.from(partOne.entries())
           .map(([key, value]) => `${key}: ${value}`)
           .join(" - ")}
       </p>
 
       <p>Sum of memory: {result}</p>
+
+      <p>
+        {Array.from(partTwo.entries())
+          .map(([key, value]) => `${key}: ${value}`)
+          .join(" - ")}
+      </p>
+
+      <p>Sum of memory: {resultTwo}</p>
     </>
   );
 };
