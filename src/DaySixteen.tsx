@@ -55,20 +55,77 @@ function validateTicket(ticket: Ticket, rules: Rule[]): number[] {
   );
 }
 
+type LabeledTicket = Map<string, number>;
+
+function validateNumber(value: number, rule: Rule): boolean {
+  return [rule.lowerRange, rule.upperRange].some(
+    ([lower, upper]) => lower <= value && value <= upper
+  );
+}
+
+function labelTicket(answer: Answer): LabeledTicket {
+  const validTickets = answer.nearbyTickets.filter(
+    (ticket) => validateTicket(ticket, answer.rules).length === 0
+  );
+  const possibleTicket = answer.myTicket.map<[number, Rule[]]>(
+    (element, position) => {
+      const allValues = [element, ...validTickets.map((x) => x[position])];
+      const possibleRules = answer.rules.filter((rule) =>
+        allValues.every((value) => validateNumber(value, rule))
+      );
+      return [element, possibleRules];
+    }
+  );
+  return possibleTicket
+    .sort((a, b) => a[1].length - b[1].length)
+    .reduce<LabeledTicket>((ticket, [value, rules]) => {
+      const filteredRules = rules.filter((rule) => !ticket.has(rule.name));
+      if (filteredRules.length !== 1) {
+        throw new Error("cannot determin rule");
+      }
+      ticket.set(filteredRules[0].name, value);
+      return ticket;
+    }, new Map());
+}
+
+function departureNumbers(labelledTicket: LabeledTicket): number[] {
+  return Array.from(labelledTicket.entries())
+    .filter(([name]) => name.match(/^departure/))
+    .map((keyValue) => keyValue[1]);
+}
+
 export const DaySixteen: React.FunctionComponent<
   Record<string, never>
 > = () => {
   const answer = parseInput(input);
-  const invalidNumbers = answer.nearbyTickets.map((ticket) =>
-    validateTicket(ticket, answer.rules)
-  );
+  const invalidNumbers = answer.nearbyTickets
+    .map((ticket) => validateTicket(ticket, answer.rules))
+    .flat();
+  const labelledTicket = labelTicket(answer);
+  const departure = departureNumbers(labelledTicket);
   return (
     <>
       <h1>Day Sixteen;</h1>
 
       <p>
-        ticket scanning error rate: {invalidNumbers.flat().join(" + ")} ={" "}
-        {invalidNumbers.flat().reduce((acc, num) => acc + num, 0)}
+        ticket scanning error rate: {invalidNumbers.join(" + ")} ={" "}
+        {invalidNumbers.reduce((acc, num) => acc + num, 0)}
+      </p>
+
+      <h2>Labeled Ticket</h2>
+
+      <p>
+        {Array.from(labelledTicket.entries())
+          .map(
+            ([name, value]) => `${name}:
+        ${value}`
+          )
+          .join(", ")}
+      </p>
+
+      <p>
+        What do you get if you multiply those six values together?:{" "}
+        {departure.join(" x ")} = {departure.reduce((acc, num) => acc * num, 1)}
       </p>
     </>
   );
