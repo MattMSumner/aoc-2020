@@ -3,66 +3,63 @@ import { initialState } from "./DaySeventeen/initialState";
 
 type Cube = "#" | ".";
 
-type PocketDimension = Cube[][][];
+type PocketDimension = Cube[][][][];
 
 function parseInitialState(initialState: string): PocketDimension {
   return [
-    initialState.split("\n").map((line) =>
-      line.split("").map((x) => {
-        if (x !== "#" && x !== ".") {
-          throw new Error("invalid cube");
-        }
-        return x;
-      })
-    ),
+    [
+      initialState.split("\n").map((line) =>
+        line.split("").map((x) => {
+          if (x !== "#" && x !== ".") {
+            throw new Error("invalid cube");
+          }
+          return x;
+        })
+      ),
+    ],
   ];
 }
 
 function safeAccess(
+  w: number,
   z: number,
   y: number,
   x: number,
   board: PocketDimension
 ): Cube {
-  return (board[z] && board[z][y] && board[z][y][x]) || ".";
+  return (
+    (board[w] && board[w][z] && board[w][z][y] && board[w][z][y][x]) || "."
+  );
 }
 
 function newCube(
   x: number,
   y: number,
   z: number,
+  w: number,
   board: PocketDimension
 ): Cube {
-  const occupiedNieghbors = [
-    safeAccess(z + 1, y - 1, x - 1, board),
-    safeAccess(z + 1, y - 1, x, board),
-    safeAccess(z + 1, y - 1, x + 1, board),
-    safeAccess(z + 1, y, x - 1, board),
-    safeAccess(z + 1, y, x, board),
-    safeAccess(z + 1, y, x + 1, board),
-    safeAccess(z + 1, y + 1, x - 1, board),
-    safeAccess(z + 1, y + 1, x, board),
-    safeAccess(z + 1, y + 1, x + 1, board),
-    safeAccess(z, y - 1, x - 1, board),
-    safeAccess(z, y - 1, x, board),
-    safeAccess(z, y - 1, x + 1, board),
-    safeAccess(z, y, x - 1, board),
-    safeAccess(z, y, x + 1, board),
-    safeAccess(z, y + 1, x - 1, board),
-    safeAccess(z, y + 1, x, board),
-    safeAccess(z, y + 1, x + 1, board),
-    safeAccess(z - 1, y - 1, x - 1, board),
-    safeAccess(z - 1, y - 1, x, board),
-    safeAccess(z - 1, y - 1, x + 1, board),
-    safeAccess(z - 1, y, x - 1, board),
-    safeAccess(z - 1, y, x, board),
-    safeAccess(z - 1, y, x + 1, board),
-    safeAccess(z - 1, y + 1, x - 1, board),
-    safeAccess(z - 1, y + 1, x, board),
-    safeAccess(z - 1, y + 1, x + 1, board),
-  ].filter((x) => x === "#").length;
+  const occupiedNieghbors = [w - 1, w, w + 1]
+    .map((doubleU) =>
+      [z - 1, z, z + 1]
+        .map((zed) =>
+          [y - 1, y, y + 1]
+            .map((why) =>
+              [x - 1, x, x + 1].map((ex) => {
+                if (doubleU === w && zed === z && why === y && ex === x) {
+                  return ".";
+                }
+                return safeAccess(doubleU, zed, why, ex, board);
+              })
+            )
+            .flat()
+        )
+        .flat()
+    )
+    .flat()
+    .filter((x) => x === "#").length;
 
-  if (safeAccess(z, y, x, board) === "#") {
+  if (safeAccess(w, z, y, x, board) === "#") {
     return [2, 3].includes(occupiedNieghbors) ? "#" : ".";
   } else {
     return occupiedNieghbors === 3 ? "#" : ".";
@@ -70,56 +67,30 @@ function newCube(
 }
 
 function tick(board: PocketDimension): PocketDimension {
-  const newBoardRow = new Array<Cube>(board[0][0].length + 2).fill(".");
-  const newBoardLayer = new Array<Cube[]>(board[0].length + 2).fill(
+  const newBoardRow = new Array<Cube>(board[0][0][0].length + 2).fill(".");
+  const newBoardLayer = new Array<Cube[]>(board[0][0].length + 2).fill(
     newBoardRow
   );
-  const newBoard = new Array<Cube[][]>(board.length + 2).fill(newBoardLayer);
+  const newBoardCube = new Array<Cube[][]>(board[0].length + 2).fill(
+    newBoardLayer
+  );
+  const newBoard = new Array<Cube[][][]>(board.length + 2).fill(newBoardCube);
 
-  return newBoard.map((layer, layerIndex) => {
-    return layer.map((row, rowIndex) => {
-      return row.map((element, elementIndex) => {
-        return newCube(elementIndex - 1, rowIndex - 1, layerIndex - 1, board);
+  return newBoard.map((cube, cubeIndex) => {
+    return cube.map((layer, layerIndex) => {
+      return layer.map((row, rowIndex) => {
+        return row.map((element, elementIndex) => {
+          return newCube(
+            elementIndex - 1,
+            rowIndex - 1,
+            layerIndex - 1,
+            cubeIndex - 1,
+            board
+          );
+        });
       });
     });
   });
-}
-
-function trimEdges(board: PocketDimension): PocketDimension {
-  if (board[0].every((row) => row.every((element) => element === "."))) {
-    board.shift();
-  }
-  if (
-    board[board.length - 1].every((row) =>
-      row.every((element) => element === ".")
-    )
-  ) {
-    board.pop();
-  }
-
-  if (board.every((layer) => layer[0].every((element) => element === "."))) {
-    board.forEach((layer) => layer.shift());
-  }
-
-  if (
-    board.every((layer) =>
-      layer[layer.length - 1].every((element) => element === ".")
-    )
-  ) {
-    board.forEach((layer) => layer.pop());
-  }
-
-  if (board.every((layer) => layer.every((row) => row[0] === "."))) {
-    board.forEach((layer) => layer.forEach((row) => row.shift()));
-  }
-
-  if (
-    board.every((layer) => layer.every((row) => row[row.length - 1] === "."))
-  ) {
-    board.forEach((layer) => layer.forEach((row) => row.pop()));
-  }
-
-  return board;
 }
 
 interface BoardProps {
@@ -127,23 +98,44 @@ interface BoardProps {
 }
 
 const Board: React.FunctionComponent<BoardProps> = ({ board }: BoardProps) => {
-  const boardStrings = board.map((layer) => {
-    return layer.map((row) => row.join("")).join("\n");
+  const cubeStrings = board.map((cube) => {
+    return cube.map((layer) => {
+      return layer.map((row) => row.join("")).join("\n");
+    });
   });
 
   return (
     <>
-      {boardStrings.map((boardString, index) => (
-        <>
-          <div className="board" key={index}>
-            {boardString}
-          </div>
-          <hr />
-        </>
+      {cubeStrings.map((cube, i) => (
+        <div className="flex-container" key={i}>
+          {cube.map((boardString, j) => (
+            <div className="board" key={j}>
+              {boardString}
+            </div>
+          ))}
+        </div>
       ))}
     </>
   );
 };
+
+function countLive(board: PocketDimension): number {
+  return board.reduce(
+    (acc, cube) =>
+      acc +
+      cube.reduce(
+        (sum, layer) =>
+          sum +
+          layer.reduce(
+            (rowSum, row) =>
+              rowSum + row.filter((element) => element === "#").length,
+            0
+          ),
+        0
+      ),
+    0
+  );
+}
 
 export const DaySeventeen: React.FunctionComponent<
   Record<string, never>
@@ -152,16 +144,7 @@ export const DaySeventeen: React.FunctionComponent<
     0,
     parseInitialState(initialState),
   ]);
-  const liveCount = board.reduce(
-    (sum, layer) =>
-      sum +
-      layer.reduce(
-        (rowSum, row) =>
-          rowSum + row.filter((element) => element === "#").length,
-        0
-      ),
-    0
-  );
+  const liveCount = countLive(board);
   return (
     <>
       <h1>Day Seventeen; Conway Cubes</h1>
@@ -169,7 +152,7 @@ export const DaySeventeen: React.FunctionComponent<
       <p>
         <button
           onClick={() => {
-            updateBoard([count + 1, trimEdges(tick(board))]);
+            updateBoard([count + 1, tick(board)]);
           }}
         >
           Tick {count}
