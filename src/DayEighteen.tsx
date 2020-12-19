@@ -8,12 +8,19 @@ function evaluate(question: string): number {
     return evaluate(question.replace(firstParenthesis[0], `${replaceWith}`));
   }
 
-  const [answer] = question.split(" ").reduce<[number, "+" | "*" | undefined]>(
+  const firstAddition = question.match(/\d+ \+ \d+/);
+
+  if (firstAddition) {
+    const [num1, _, num2] = firstAddition[0].split(" ");
+    return evaluate(
+      question.replace(firstAddition[0], `${parseInt(num1) + parseInt(num2)}`)
+    );
+  }
+
+  const [answer] = question.split(" ").reduce<[number, "*" | undefined]>(
     ([answer, sign], numberOrSign) => {
-      if (numberOrSign === "+" || numberOrSign === "*") {
+      if (numberOrSign === "*") {
         return [answer, numberOrSign];
-      } else if (sign === "+") {
-        return [answer + parseInt(numberOrSign), undefined];
       } else if (sign === "*") {
         return [answer * parseInt(numberOrSign), undefined];
       } else {
