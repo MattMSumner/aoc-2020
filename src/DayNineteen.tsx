@@ -1,8 +1,28 @@
 import React from "react";
 import { rulesAndMessages } from "./DayNineteen/rulesAndMessages";
 
-type Rule = (x: string) => string | null;
+type Rule = (x: string, right?: boolean) => string | null;
 type RuleMap = Map<number, Rule>;
+
+function keysToString(keys: number[], map: RuleMap): Rule {
+  function recurse(
+    [head, ...tail]: number[],
+    string: string | null
+  ): string | null {
+    if (!head) return string;
+    if (!string) return null;
+    const func = map.get(head);
+    if (!func) {
+      throw new Error(`could not find function for key ${head}`);
+    }
+    const newString = func(string);
+    const left = recurse(tail, newString);
+    console.log({ left, head, string });
+    if (left === null) return recurse(tail, func(string, true));
+    return left;
+  }
+  return (string) => recurse(keys, string);
+}
 
 function buildRuleFunction(rule: string, map: RuleMap): Rule {
   if (rule === '"a"') {
@@ -14,9 +34,9 @@ function buildRuleFunction(rule: string, map: RuleMap): Rule {
 
   const ors = rule.split(" | ");
   if (ors.length === 2) {
-    return (string) => {
+    return (string, right) => {
       const left = buildRuleFunction(ors[0], map)(string);
-      if (left === null) {
+      if (right) {
         return buildRuleFunction(ors[1], map)(string);
       }
       return left;
@@ -24,15 +44,7 @@ function buildRuleFunction(rule: string, map: RuleMap): Rule {
   }
 
   const keys = rule.split(" ").map((key) => parseInt(key));
-  return (string) => {
-    return keys.reduce<string | null>((newString, key) => {
-      const func = map.get(key);
-      if (!func) {
-        throw new Error(`could not find function for key ${key}`);
-      }
-      return newString && func(newString);
-    }, string);
-  };
+  return keysToString(keys, map);
 }
 
 function parseInput(rulesAndMessages: string): [RuleMap, string[]] {
@@ -61,11 +73,11 @@ export const DayNineteen: React.FunctionComponent<
     <>
       <h1>Day One; Monster Messages</h1>
 
+      <p>{validMessages.length}</p>
+
       {validMessages.map((message) => (
         <p key={message}>{message}</p>
       ))}
-
-      <p>{validMessages.length}</p>
     </>
   );
 };
