@@ -1,5 +1,10 @@
 import React from "react";
-import { HashRouter as Router, Switch, Route, Link } from "react-router-dom";
+import {
+  HashRouter as Router,
+  Switch,
+  Route,
+  NavLink as Link,
+} from "react-router-dom";
 import { DayOne } from "./DayOne";
 import { DayTwo } from "./DayTwo";
 import { DayThree } from "./DayThree";
@@ -20,6 +25,7 @@ import { DaySeventeen } from "./DaySeventeen";
 import { DayEighteen } from "./DayEighteen";
 import { DayNineteen } from "./DayNineteen";
 import { DayTwenty } from "./DayTwenty";
+import { DayTwentyOne } from "./DayTwentyOne";
 
 export const App: React.FunctionComponent<Record<string, never>> = () => {
   return (
@@ -28,64 +34,109 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
         <nav>
           <ul>
             <li>
-              <Link to="/day_one">Day 1</Link>
+              <Link activeClassName="active" to="/day_one">
+                Day 1
+              </Link>
             </li>
             <li>
-              <Link to="/day_two">Day 2</Link>
+              <Link activeClassName="active" to="/day_two">
+                Day 2
+              </Link>
             </li>
             <li>
-              <Link to="/day_three">Day 3</Link>
+              <Link activeClassName="active" to="/day_three">
+                Day 3
+              </Link>
             </li>
             <li>
-              <Link to="/day_four">Day 4</Link>
+              <Link activeClassName="active" to="/day_four">
+                Day 4
+              </Link>
             </li>
             <li>
-              <Link to="/day_five">Day 5</Link>
+              <Link activeClassName="active" to="/day_five">
+                Day 5
+              </Link>
             </li>
             <li>
-              <Link to="/day_six">Day 6</Link>
+              <Link activeClassName="active" to="/day_six">
+                Day 6
+              </Link>
             </li>
             <li>
-              <Link to="/day_seven">Day 7</Link>
+              <Link activeClassName="active" to="/day_seven">
+                Day 7
+              </Link>
             </li>
             <li>
-              <Link to="/day_eight">Day 8</Link>
+              <Link activeClassName="active" to="/day_eight">
+                Day 8
+              </Link>
             </li>
             <li>
-              <Link to="/day_nine">Day 9</Link>
+              <Link activeClassName="active" to="/day_nine">
+                Day 9
+              </Link>
             </li>
             <li>
-              <Link to="/day_ten">Day 10</Link>
+              <Link activeClassName="active" to="/day_ten">
+                Day 10
+              </Link>
             </li>
             <li>
-              <Link to="/day_eleven">Day 11</Link>
+              <Link activeClassName="active" to="/day_eleven">
+                Day 11
+              </Link>
             </li>
             <li>
-              <Link to="/day_twelve">Day 12</Link>
+              <Link activeClassName="active" to="/day_twelve">
+                Day 12
+              </Link>
             </li>
             <li>
-              <Link to="/day_thirteen">Day 13</Link>
+              <Link activeClassName="active" to="/day_thirteen">
+                Day 13
+              </Link>
             </li>
             <li>
-              <Link to="/day_fourteen">Day 14</Link>
+              <Link activeClassName="active" to="/day_fourteen">
+                Day 14
+              </Link>
             </li>
             <li>
-              <Link to="/day_fifteen">Day 15</Link>
+              <Link activeClassName="active" to="/day_fifteen">
+                Day 15
+              </Link>
             </li>
             <li>
-              <Link to="/day_sixteen">Day 16</Link>
+              <Link activeClassName="active" to="/day_sixteen">
+                Day 16
+              </Link>
             </li>
             <li>
-              <Link to="/day_seventeen">Day 17</Link>
+              <Link activeClassName="active" to="/day_seventeen">
+                Day 17
+              </Link>
             </li>
             <li>
-              <Link to="/day_eighteen">Day 18</Link>
+              <Link activeClassName="active" to="/day_eighteen">
+                Day 18
+              </Link>
             </li>
             <li>
-              <Link to="/day_nineteen">Day 19</Link>
+              <Link activeClassName="active" to="/day_nineteen">
+                Day 19
+              </Link>
             </li>
             <li>
-              <Link to="/day_twenty">Day 20</Link>
+              <Link activeClassName="active" to="/day_twenty">
+                Day 20
+              </Link>
+            </li>
+            <li>
+              <Link activeClassName="active" to="/day_twenty_one">
+                Day 21
+              </Link>
             </li>
           </ul>
         </nav>
@@ -150,6 +201,9 @@ export const App: React.FunctionComponent<Record<string, never>> = () => {
           </Route>
           <Route path="/day_twenty">
             <DayTwenty />
+          </Route>
+          <Route path="/day_twenty_one">
+            <DayTwentyOne />
           </Route>
         </Switch>
       </div>
