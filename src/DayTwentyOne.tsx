@@ -16,9 +16,14 @@ function parseIngredients(ingredientList: string): Food[] {
   });
 }
 
-function findNoAllergenInredients(foods: Food[]): string[] {
+type DangerousIngredients = Map<string, string>;
+
+function findNoAllergenInredients(
+  foods: Food[],
+  dangerousIngredients: DangerousIngredients
+): [string[], DangerousIngredients] {
   if (foods.every((food) => food.allergens.length === 0)) {
-    return foods.map((food) => food.ingredients).flat();
+    return [foods.map((food) => food.ingredients).flat(), dangerousIngredients];
   }
   let i = 0;
   while (true) {
@@ -30,7 +35,6 @@ function findNoAllergenInredients(foods: Food[]): string[] {
       (ingredient) =>
         foodsWithAllergen.every((food) => food.ingredients.includes(ingredient))
     );
-    console.log({ commonIngredients, allergen });
 
     if (commonIngredients.length === 1) {
       const newFoods = foods.map((food) => {
@@ -42,7 +46,9 @@ function findNoAllergenInredients(foods: Food[]): string[] {
         };
       });
 
-      return findNoAllergenInredients(newFoods);
+      dangerousIngredients.set(allergen, commonIngredients[0]);
+
+      return findNoAllergenInredients(newFoods, dangerousIngredients);
     } else {
       i++;
     }
@@ -53,14 +59,22 @@ export const DayTwentyOne: React.FunctionComponent<
   Record<string, never>
 > = () => {
   const foods = parseIngredients(ingredientList);
-  const noAllergens = findNoAllergenInredients(foods);
+  const [noAllergens, dangerousIngredients] = findNoAllergenInredients(
+    foods,
+    new Map()
+  );
+  const sorted = Array.from(dangerousIngredients.keys()).sort();
   return (
     <>
       <h1>Day Twenty One; Allergen Assessment</h1>
 
+      <p>no allergen ingedients: {noAllergens.join(", ")}</p>
+
+      <p>count: {noAllergens.length}</p>
+
       <p>
-        no allergen ingedients: {noAllergens.join(", ")} - count:{" "}
-        {noAllergens.length}
+        dangerous ingedients:{" "}
+        {sorted.map((allergen) => dangerousIngredients.get(allergen)).join(",")}
       </p>
     </>
   );
